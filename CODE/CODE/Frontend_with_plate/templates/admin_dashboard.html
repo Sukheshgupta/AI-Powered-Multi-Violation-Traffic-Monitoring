@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ViolaTracker Admin Dashboard</title>
+  <link rel="stylesheet" href="/static/css/bootstrap.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/css/theme.css" />
+  <link rel="stylesheet" href="/static/css/admin.css" />
+  <script src="/static/js/theme.js" defer></script>
+</head>
+<body class="admin-page">
+  <header class="topbar">
+    <div>
+      <p class="sub">Admin Portal</p>
+      <h1 class="brand">ViolaTracker Dashboard</h1>
+    </div>
+    <nav>
+      <a href="{{ url_for('admin_dashboard') }}">Dashboard</a>
+      <a href="{{ url_for('admin_detect') }}">Detect & Assign</a>
+      <a href="{{ url_for('admin_prediction') }}">Live Prediction</a>
+      <a href="{{ url_for('upload_video') }}">Upload Video</a>
+      <a href="{{ url_for('admin_export_results') }}">Export Images</a>
+      <a href="{{ url_for('admin_logout') }}">Logout</a>
+    </nav>
+  </header>
+
+  <main class="wrap">
+    {% with messages = get_flashed_messages(with_categories=True) %}
+    {% for category, message in messages %}
+    <div class="alert alert-{{ category }}">{{ message }}</div>
+    {% endfor %}
+    {% endwith %}
+
+    <section class="admin-hero">
+      <div>
+        <p class="admin-eyebrow">Operations Overview</p>
+        <h2>Detection activity and challan status in one place.</h2>
+        <p>Use this page during your demo to show how many violations the system has processed and what action is pending.</p>
+      </div>
+      <div class="admin-hero-actions">
+        <a href="{{ url_for('admin_detect') }}">Run Detection</a>
+        <a href="{{ url_for('admin_prediction') }}">Open Live Camera</a>
+        <a href="{{ url_for('upload_video') }}">Upload Video</a>
+        <a href="{{ url_for('admin_export_results') }}">Download Results ZIP</a>
+      </div>
+    </section>
+
+    <section class="dashboard-grid">
+      <article class="dash-card primary">
+        <span class="dash-label">Total Detections</span>
+        <strong>{{ total_detections }}</strong>
+        <span class="dash-note">Saved violation records</span>
+      </article>
+      <article class="dash-card">
+        <span class="dash-label">Today</span>
+        <strong>{{ today_detections }}</strong>
+        <span class="dash-note">Detected since midnight</span>
+      </article>
+      <article class="dash-card">
+        <span class="dash-label">Pending Challans</span>
+        <strong>{{ pending_count }}</strong>
+        <span class="dash-note">Rs {{ total_pending_amount }} outstanding</span>
+      </article>
+      <article class="dash-card">
+        <span class="dash-label">Paid Challans</span>
+        <strong>{{ paid_count }}</strong>
+        <span class="dash-note">Completed payments</span>
+      </article>
+      <article class="dash-card">
+        <span class="dash-label">Assigned</span>
+        <strong>{{ assigned_count }}</strong>
+        <span class="dash-note">Matched to users</span>
+      </article>
+      <article class="dash-card">
+        <span class="dash-label">Unassigned</span>
+        <strong>{{ unassigned_count }}</strong>
+        <span class="dash-note">Need plate/user review</span>
+      </article>
+      <article class="dash-card">
+        <span class="dash-label">Unique Plates</span>
+        <strong>{{ unique_plates }}</strong>
+        <span class="dash-note">Known plates detected</span>
+      </article>
+      <article class="dash-card">
+        <span class="dash-label">Alert Channel</span>
+        <strong>{{ twilio_channel|upper }}</strong>
+        <span class="dash-note">Twilio notification mode</span>
+      </article>
+    </section>
+
+    <section class="dashboard-split">
+      <article class="dash-panel">
+        <div class="dash-panel-head">
+          <h3>Violation Breakdown</h3>
+          <span>{{ violation_rows|length }} classes</span>
+        </div>
+        {% if violation_rows %}
+        <div class="violation-list">
+          {% for label, count, amount in violation_rows %}
+          <div class="violation-row">
+            <div class="violation-meta">
+              <strong>{{ label }}</strong>
+              <span>{{ count }} detections | Rs {{ amount }}</span>
+            </div>
+            <div class="violation-bar">
+              <span style="width: {{ (count * 100 / max_violation_count)|round(0, 'floor') }}%"></span>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+        {% else %}
+        <p class="empty-state">No detections recorded yet.</p>
+        {% endif %}
+      </article>
+
+      <article class="dash-panel">
+        <div class="dash-panel-head">
+          <h3>Quick Checks</h3>
+          <span>Demo ready</span>
+        </div>
+        <div class="check-list">
+          <div><strong>Notification flow</strong><span>{{ twilio_channel|upper }} alerts configured from environment.</span></div>
+          <div><strong>Plate assignment</strong><span>{{ assigned_count }} records already mapped to registered users.</span></div>
+          <div><strong>Pending recovery</strong><span>Rs {{ total_pending_amount }} visible in user challan dashboards.</span></div>
+        </div>
+      </article>
+    </section>
+
+    <section class="dash-panel">
+      <div class="dash-panel-head">
+        <h3>Recent Detections</h3>
+        <span>Latest 8</span>
+      </div>
+      {% if recent_detections %}
+      <div class="table-responsive">
+        <table class="table admin-table">
+          <thead>
+            <tr>
+              <th>Time</th>
+              <th>Violation</th>
+              <th>Plate</th>
+              <th>User</th>
+              <th>Fine</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for detection, user in recent_detections %}
+            <tr>
+              <td>{{ detection.detection_time.strftime('%d %b %Y, %I:%M %p') if detection.detection_time else '-' }}</td>
+              <td>{{ detection.detected_class }}</td>
+              <td>{{ detection.plate_number }}</td>
+              <td>{% if user %}{{ user.first_name or user.username }}{% else %}Unassigned{% endif %}</td>
+              <td>Rs {{ detection.fine_amount }}</td>
+              <td><span class="status-pill {{ detection.status|lower }}">{{ detection.status }}</span></td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <p class="empty-state">Run a detection to populate this table.</p>
+      {% endif %}
+    </section>
+  </main>
+</body>
+</html>

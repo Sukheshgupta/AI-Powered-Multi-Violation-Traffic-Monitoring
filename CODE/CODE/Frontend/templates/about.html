@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <!-- Basic -->
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <!-- Mobile Metas -->
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+  <!-- Site Metas -->
+  <meta name="keywords" content="Transport, Logistics, Carint" />
+  <meta name="description" content="Learn more about Carint's services and mission." />
+  <meta name="author" content="Carint" />
+  <link rel="shortcut icon" href="/static/images/fevicon.png" type="image/png">
+
+  <title>Carint</title>
+
+  <!-- Bootstrap core CSS -->
+  <link rel="stylesheet" type="text/css" href="/static/css/bootstrap.css" />
+
+  <!-- Fonts Style -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+  <!-- Owl Carousel stylesheet -->
+  <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.carousel.min.css" />
+
+  <!-- Font Awesome (Latest for traffic icons) -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet" />
+
+  <!-- Animate.css for animations -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
+
+  <!-- Custom Styles -->
+  <link href="/static/css/style.css" rel="stylesheet" />
+  <!-- Responsive Styles -->
+  <link href="/static/css/responsive.css" rel="stylesheet" />
+
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #e0eafc 0%, #cfdef3 100%);
+    }
+
+    .hero_area {
+      position: relative;
+      background: rgba(255, 255, 255, 0.9);
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .header_section {
+      padding: 15px 0;
+    }
+
+    .navbar-brand {
+      display: flex;
+      align-items: center;
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: #1a73e8;
+      text-transform: uppercase;
+      transition: color 0.3s ease;
+    }
+
+    .navbar-brand:hover {
+      color: #ff5722;
+    }
+
+    .navbar-brand i {
+      margin-right: 15px;
+      font-size: 2.2rem;
+      color: #1a73e8;
+      transition: transform 0.3s ease;
+    }
+
+    .navbar-brand:hover i {
+      transform: scale(1.1);
+    }
+
+    .navbar-nav .nav-link {
+      display: flex;
+      align-items: center;
+      color: #333;
+      font-weight: 500;
+      padding: 12px 25px;
+      transition: all 0.3s ease;
+    }
+
+    .navbar-nav .nav-link i {
+      margin-right: 10px;
+      color: #1a73e8;
+      transition: transform 0.3s ease;
+    }
+
+    .navbar-nav .nav-link:hover {
+      color: #ff5722;
+      background: rgba(26, 115, 232, 0.1);
+      border-radius: 8px;
+    }
+
+    .navbar-nav .nav-link:hover i {
+      transform: rotate(20deg);
+    }
+
+    .navbar-nav .nav-item.active .nav-link {
+      color: #1a73e8;
+      font-weight: 600;
+    }
+
+    .about_section {
+      padding: 80px 0;
+      background: #fff;
+      border-radius: 20px;
+      margin: 20px auto;
+      max-width: 1200px;
+      box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+    }
+
+    .heading_container h2 {
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: #1a73e8;
+      position: relative;
+      margin-bottom: 30px;
+    }
+
+    .heading_container h2 span {
+      color: #ff5722;
+    }
+
+    .heading_container h2::after {
+      content: '';
+      width: 60px;
+      height: 4px;
+      background: #ff5722;
+      position: absolute;
+      bottom: -10px;
+      left: 0;
+      border-radius: 2px;
+    }
+
+    .detail-box p {
+      font-size: 1.1rem;
+      color: #444;
+      line-height: 1.8;
+      animation: fadeInUp 1s ease;
+    }
+
+    .img-box img {
+      width: 100%;
+      border-radius: 15px;
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+      transition: transform 0.5s ease;
+    }
+
+    .img-box img:hover {
+      transform: scale(1.05);
+    }
+  </style>
+</head>
+
+<body class="sub_page">
+
+  <div class="hero_area">
+    <!-- Header Section -->
+    <header class="header_section">
+      <div class="header_bottom">
+        <div class="container-fluid">
+          <nav class="navbar navbar-expand-lg custom_nav-container">
+            <a class="navbar-brand" href="#">
+              <i class="fas fa-car-crash"></i> <!-- Car crash icon for accident theme -->
+              Carint: Accident Detection System
+            </a>
+
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+              <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+              <ul class="navbar-nav ml-auto">
+                <li class="nav-item">
+                  <a class="nav-link" href="{{ url_for('index') }}">
+                    <i class="fas fa-road"></i> Home
+                  </a>
+                </li>
+                <li class="nav-item active">
+                  <a class="nav-link" href="{{ url_for('about') }}">
+                    <i class="fas fa-info-circle"></i> About
+                  </a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="{{ url_for('login') }}">
+                    <i class="fas fa-user-lock"></i> Login
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </nav>
+        </div>
+      </div>
+    </header>
+    <!-- End Header Section -->
+  </div>
+
+  <!-- About Section -->
+  <section class="about_section layout_padding">
+    <div class="container">
+      <div class="row align-items-center">
+        <div class="col-md-6">
+          <div class="detail-box">
+            <div class="heading_container">
+              <h2>About <span>Us</span></h2>
+            </div>
+            <p style="text-align: justify;">
+              Our deep learning-based system is designed to enhance road safety by detecting helmet violations and triple riding on two-wheelers. Utilizing advanced computer vision and neural networks, the system analyzes real-time video feeds to identify individuals who are not wearing helmets or engaging in triple riding, which are both dangerous traffic violations. The system accurately recognizes these violations, ensuring timely alerts for law enforcement or traffic management authorities. By leveraging state-of-the-art deep learning models, this solution aims to reduce road accidents, promote safer driving behavior, and contribute to overall traffic safety enforcement efforts.
+            </p>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="img-box">
+            <img src="/static/images/abcdggg.jpg" alt="About Us Image" class="img-fluid">
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <!-- End About Section -->
+
+  <!-- jQuery -->
+  <script type="text/javascript" src="/static/js/jquery-3.4.1.min.js"></script>
+  <!-- Popper.js -->
+  <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+  <!-- Bootstrap JS -->
+  <script type="text/javascript" src="/static/js/bootstrap.js"></script>
+  <!-- Owl Carousel -->
+  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/owl.carousel.min.js"></script>
+  <!-- Custom JS -->
+  <script type="text/javascript" src="/static/js/custom.js"></script>
+  <!-- Google Maps -->
+  <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&callback=myMap"></script>
+  <!-- End Google Maps -->
+
+</body>
+
+</html>

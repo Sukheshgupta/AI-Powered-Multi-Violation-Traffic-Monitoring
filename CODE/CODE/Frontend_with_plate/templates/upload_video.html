@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ViolaTracker Video Detection</title>
+  <link rel="stylesheet" href="/static/css/bootstrap.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    :root{--panel:#12141c;--text:#f2f4f8;--muted:#aeb5c3;--line:#2b2f3d;--red:#e50914;--red2:#ff3641}
+    body{margin:0;font-family:DM Sans,Arial,sans-serif;color:var(--text);background:radial-gradient(circle at 12% 0%,rgba(229,9,20,.2),transparent 34%),linear-gradient(140deg,#07080c,#0b0d13 58%,#11141d);min-height:100vh}
+    .topbar{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;background:rgba(8,9,13,.86);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:10}
+    .brand{font-size:24px;font-weight:800;margin:0}
+    .sub{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;margin:0 0 4px;font-weight:700}
+    .wrap{max-width:1040px;margin:24px auto;padding:0 16px}
+    .cardx{background:linear-gradient(180deg,#12141c,#10121a);border:1px solid var(--line);border-radius:16px;overflow:hidden;box-shadow:0 20px 44px rgba(0,0,0,.45)}
+    .card-head{padding:16px 18px;border-bottom:1px solid var(--line);font-weight:800;background:linear-gradient(120deg,rgba(229,9,20,.16),transparent)}
+    .card-body{padding:18px}
+    .form-label{font-size:13px;font-weight:700;margin-bottom:6px}
+    .form-control{min-height:45px;border-radius:11px;border:1px solid #303545;background:#0f121a;color:#fff;font-weight:600}
+    .form-control:focus{border-color:#ff4b54;box-shadow:0 0 0 .2rem rgba(229,9,20,.18);background:#0f121a;color:#fff}
+    .btn-run{border:0;min-height:45px;border-radius:11px;color:#fff;font-weight:800;background:linear-gradient(135deg,var(--red),var(--red2));padding:0 18px}
+    .result-video{display:block;width:100%;max-height:620px;margin-top:14px;border-radius:12px;border:1px solid var(--line);background:#05060a}
+    .result-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:12px}
+    .result-actions a{font-weight:800}
+    .saved-path{color:var(--muted);font-size:13px;font-weight:700;margin:8px 0 0;word-break:break-all}
+    .alert{border-radius:12px;font-weight:700}
+    .note{margin-top:8px;color:var(--muted);font-size:13px;font-weight:700}
+    @media (max-width:760px){.topbar{align-items:flex-start;gap:12px;flex-direction:column}}
+  </style>
+  <link rel="stylesheet" href="/static/css/theme.css" />
+  <link rel="stylesheet" href="/static/css/admin.css" />
+  <script src="/static/js/theme.js" defer></script>
+</head>
+<body class="admin-page">
+  <header class="topbar">
+    <div>
+      <p class="sub">Admin Portal</p>
+      <h1 class="brand">ViolaTracker Video Detection</h1>
+    </div>
+    <nav>
+      <a class="btn btn-outline-light btn-sm mr-2" href="{{ url_for('admin_dashboard') }}">Dashboard</a>
+      <a class="btn btn-outline-light btn-sm mr-2" href="{{ url_for('admin_detect') }}">Detect & Assign</a>
+      <a class="btn btn-outline-danger btn-sm mr-2" href="{{ url_for('admin_prediction') }}">Live Prediction</a>
+      <a class="btn btn-outline-info btn-sm mr-2" href="{{ url_for('upload_video') }}">Upload Video</a>
+      <a class="btn btn-outline-secondary btn-sm" href="{{ url_for('admin_logout') }}">Logout</a>
+    </nav>
+  </header>
+
+  <main class="wrap">
+    <section class="cardx">
+      <div class="card-head">Uploaded Video Detection</div>
+      <div class="card-body">
+        {% with messages = get_flashed_messages(with_categories=True) %}
+        {% for category, message in messages %}
+        <div class="alert alert-{{ category }}">{{ message }}</div>
+        {% endfor %}
+        {% endwith %}
+
+        {% if detection_message %}
+        <div class="alert alert-success">{{ detection_message }}</div>
+        {% endif %}
+
+        <form method="POST" enctype="multipart/form-data" action="{{ url_for('upload_video') }}">
+          <div class="form-group">
+            <label class="form-label" for="videoFile">Upload Traffic Video</label>
+            <input type="file" name="video_file" id="videoFile" accept=".mp4,.avi,.mov,video/mp4,video/quicktime,video/x-msvideo" class="form-control" required>
+            <div class="note">Supported formats: .mp4, .avi, .mov</div>
+          </div>
+          <button class="btn-run" type="submit">Process Video</button>
+        </form>
+
+        {% if result_video %}
+        <video class="result-video" controls preload="metadata">
+          <source src="{{ result_video }}" type="video/mp4">
+        </video>
+        <div class="result-actions">
+          <a class="btn btn-outline-light btn-sm" href="{{ result_video }}" target="_blank">Open Processed Video</a>
+        </div>
+        {% if result_video_filename %}
+        <p class="saved-path">Saved as uploads/videos/results/{{ result_video_filename }}</p>
+        {% endif %}
+        {% endif %}
+      </div>
+    </section>
+  </main>
+</body>
+</html>

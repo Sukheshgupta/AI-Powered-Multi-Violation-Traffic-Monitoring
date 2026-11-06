@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ViolaTracker Admin Login</title>
+  <link rel="stylesheet" href="/static/css/bootstrap.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/css/theme.css" />
+  <link rel="stylesheet" href="/static/css/admin.css" />
+  <script src="/static/js/theme.js" defer></script>
+</head>
+<body class="admin-auth-page">
+  <main class="admin-auth-shell">
+    <section class="admin-auth-visual">
+      <div>
+        <p class="admin-eyebrow">Traffic Command Center</p>
+        <h1 class="admin-auth-title">Monitor. Detect. Assign.</h1>
+        <p class="admin-auth-copy">
+          A focused workspace for violation review, live prediction, challan assignment,
+          and citizen notification from one admin console.
+        </p>
+      </div>
+
+      <div class="admin-status-grid" aria-label="Admin capabilities">
+        <div class="admin-status-item">
+          <span class="admin-status-label">Detection</span>
+          <span class="admin-status-value">YOLO</span>
+        </div>
+        <div class="admin-status-item">
+          <span class="admin-status-label">Evidence</span>
+          <span class="admin-status-value">Frames</span>
+        </div>
+        <div class="admin-status-item">
+          <span class="admin-status-label">Alerts</span>
+          <span class="admin-status-value">Twilio</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="admin-login-panel">
+      <div class="admin-login-card">
+        <div class="admin-lockup">
+          <div class="admin-mark">VT</div>
+          <div>
+            <h1>Admin Login</h1>
+            <p>Secure access for detection operators</p>
+          </div>
+        </div>
+
+        {% with messages = get_flashed_messages(with_categories=True) %}
+        {% for category, message in messages %}
+        <div class="alert alert-{{ category }}">{{ message }}</div>
+        {% endfor %}
+        {% endwith %}
+
+        <form method="POST" class="admin-form">
+          <div class="form-group">
+            <label for="username">Username</label>
+            <input class="form-control" id="username" name="username" autocomplete="username" required>
+          </div>
+          <div class="form-group">
+            <label for="password">Password</label>
+            <input class="form-control" id="password" type="password" name="password" autocomplete="current-password" required>
+          </div>
+          <button class="admin-submit" type="submit">Login to Admin Portal</button>
+        </form>
+
+        <a class="admin-back-link" href="{{ url_for('index') }}">Back to website</a>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

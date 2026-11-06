@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ViolaTracker Admin Detection</title>
+  <link rel="stylesheet" href="/static/css/bootstrap.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    :root{--bg:#090a0f;--panel:#12141c;--panel2:#171923;--text:#f2f4f8;--muted:#aeb5c3;--line:#2b2f3d;--red:#e50914;--red2:#ff3641}
+    body{margin:0;font-family:DM Sans,sans-serif;color:var(--text);background:radial-gradient(circle at 15% 0%, rgba(229,9,20,.2), transparent 35%), linear-gradient(140deg,#07080c,#0b0d13 58%,#11141d);min-height:100vh}
+    .topbar{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;background:rgba(8,9,13,.86);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:10}
+    .brand{font-size:24px;font-weight:800;margin:0}
+    .sub{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;margin:0 0 4px;font-weight:700}
+    .wrap{max-width:1100px;margin:24px auto;padding:0 16px}
+    .cardx{background:linear-gradient(180deg,#12141c,#10121a);border:1px solid var(--line);border-radius:16px;overflow:hidden;box-shadow:0 20px 44px rgba(0,0,0,.45)}
+    .card-head{padding:16px 18px;border-bottom:1px solid var(--line);font-weight:800;background:linear-gradient(120deg,rgba(229,9,20,.16),transparent)}
+    .card-body{padding:18px}
+    .form-label{font-size:13px;font-weight:700;margin-bottom:6px}
+    .form-control{min-height:45px;border-radius:11px;border:1px solid #303545;background:#0f121a;color:#fff;font-weight:600}
+    .form-control:focus{border-color:#ff4b54;box-shadow:0 0 0 .2rem rgba(229,9,20,.18);background:#0f121a;color:#fff}
+    .btn-run{border:0;height:45px;border-radius:11px;color:#fff;font-weight:800;background:linear-gradient(135deg,var(--red),var(--red2));padding:0 18px}
+    .meta{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;margin-top:14px}
+    .chip{border:1px solid var(--line);border-radius:11px;padding:10px 12px;background:#141721;font-size:13px;font-weight:700}
+    .result-image{margin-top:12px;width:100%;border-radius:12px;border:1px solid var(--line)}
+    .camera-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+    .camera-box{border:1px solid var(--line);border-radius:12px;background:#12151d;padding:10px}
+    .camera-box video,.camera-box img{width:100%;border-radius:10px;border:1px solid var(--line);background:#05060a;min-height:220px;object-fit:cover}
+    .camera-actions{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+    .camera-status{margin-top:8px;color:var(--muted);font-size:13px;font-weight:700;min-height:20px}
+    .assign-note{margin:10px 0 12px;border:1px solid var(--line);border-radius:11px;padding:10px 12px;background:#141721;color:#dbe0eb;font-size:13px;font-weight:700}
+    .alert{border-radius:12px;font-weight:700}
+    @media (max-width:900px){.camera-grid{grid-template-columns:1fr}}
+  </style>
+  <link rel="stylesheet" href="/static/css/theme.css" />
+  <link rel="stylesheet" href="/static/css/admin.css" />
+  <script src="/static/js/theme.js" defer></script>
+</head>
+<body class="admin-page">
+  <header class="topbar">
+    <div>
+      <p class="sub">Admin Portal</p>
+      <h1 class="brand">ViolaTracker Violation Console</h1>
+    </div>
+    <nav>
+      <a class="btn btn-outline-light btn-sm mr-2" href="{{ url_for('admin_dashboard') }}">Dashboard</a>
+      <a class="btn btn-outline-light btn-sm mr-2" href="/admin/detect">Detect & Assign</a>
+      <a class="btn btn-outline-danger btn-sm mr-2" href="/admin/prediction">Live Prediction</a>
+      <a class="btn btn-outline-info btn-sm mr-2" href="{{ url_for('upload_video') }}">Upload Video</a>
+      <a class="btn btn-outline-info btn-sm mr-2" href="{{ url_for('admin_export_results') }}">Export Images</a>
+      <a class="btn btn-outline-secondary btn-sm" href="{{ url_for('admin_logout') }}">Logout</a>
+    </nav>
+  </header>
+
+  <main class="wrap">
+    <section class="cardx">
+      <div class="card-head">Detect and Assign Challan</div>
+      <div class="card-body">
+        {% with messages = get_flashed_messages(with_categories=True) %}
+        {% for category, message in messages %}
+        <div class="alert alert-{{ category }}">{{ message }}</div>
+        {% endfor %}
+        {% endwith %}
+
+        <form method="POST" enctype="multipart/form-data" id="detectForm">
+          <div class="form-group">
+            <label class="form-label">Upload Traffic Image</label>
+            <input type="file" name="image_file" id="imageFile" accept="image/*" class="form-control">
+            <small class="text-muted">Optional if webcam capture is used.</small>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Assign To Number Plate</label>
+            <input type="text" name="manual_plate_number" id="manualPlateInput" class="form-control" placeholder="Ex: TSGM7788">
+            <small class="text-muted">Enter the registered plate to assign the detected violation to that user.</small>
+          </div>
+
+          <div class="camera-grid">
+            <div class="camera-box">
+              <label class="form-label">Live Webcam</label>
+              <video id="liveVideo" autoplay playsinline muted></video>
+              <div class="camera-actions">
+                <button type="button" class="btn btn-outline-light btn-sm" id="startCamBtn">Start Camera</button>
+                <button type="button" class="btn btn-outline-secondary btn-sm" id="stopCamBtn">Stop Camera</button>
+                <button type="button" class="btn btn-outline-danger btn-sm" id="captureBtn">Capture Frame</button>
+              </div>
+            </div>
+            <div class="camera-box">
+              <label class="form-label">Captured Preview</label>
+              <img id="capturedPreview" alt="Captured frame preview">
+              <small class="text-muted d-block mt-2">Capture shows a quick prediction here. Submit the form to assign challan.</small>
+              <div class="camera-status" id="cameraStatus"></div>
+            </div>
+          </div>
+
+          <input type="hidden" name="captured_image" id="capturedImageInput">
+          <div class="assign-note" id="assignNote">Capture/upload evidence, enter the plate, then assign the challan.</div>
+          <button class="btn-run" type="submit">Run Detection & Assign Challan</button>
+        </form>
+
+        {% if detection_message %}<div class="alert alert-info mt-3">{{ detection_message }}</div>{% endif %}
+
+        <div class="meta">
+          {% if detected_plate %}<div class="chip">Detected/Assigned Plate: {{ detected_plate }}</div>{% endif %}
+          {% if matched_user %}<div class="chip">Matched User: {{ matched_user.first_name }} {{ matched_user.last_name }} ({{ matched_user.college_reg_no }})</div>{% endif %}
+          {% if detected_classes %}<div class="chip">Violations: {{ detected_classes|join(', ') }}</div>{% endif %}
+        </div>
+
+        {% if result_image %}<img src="{{ result_image }}" alt="Result" class="result-image">{% endif %}
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const liveVideo = document.getElementById('liveVideo');
+    const capturedPreview = document.getElementById('capturedPreview');
+    const capturedInput = document.getElementById('capturedImageInput');
+    const imageFileInput = document.getElementById('imageFile');
+    const startBtn = document.getElementById('startCamBtn');
+    const stopBtn = document.getElementById('stopCamBtn');
+    const captureBtn = document.getElementById('captureBtn');
+    const detectForm = document.getElementById('detectForm');
+    const cameraStatus = document.getElementById('cameraStatus');
+    const manualPlateInput = document.getElementById('manualPlateInput');
+    const assignNote = document.getElementById('assignNote');
+    const detectFrameUrl = "{{ url_for('detect_frame_api') }}";
+    let mediaStream = null;
+    let detectionInFlight = false;
+
+    function setCameraStatus(message) {
+      cameraStatus.textContent = message || '';
+    }
+
+    function normalizePlate(value) {
+      return value.toUpperCase().replace(/[^A-Z0-9]/g, '');
+    }
+
+    function updateAssignNote() {
+      const plate = normalizePlate(manualPlateInput.value);
+      assignNote.textContent = plate
+        ? `Detected challan will be assigned to plate ${plate}.`
+        : 'No plate entered. The app will try automatic plate reading if a plate model is available.';
+    }
+
+    async function startCamera() {
+      try {
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+          setCameraStatus('Camera is not available in this browser/context.');
+          return;
+        }
+        if (mediaStream) {
+          setCameraStatus('Camera already running.');
+          return;
+        }
+        mediaStream = await navigator.mediaDevices.getUserMedia({
+          video: { width: { ideal: 960 }, height: { ideal: 540 } },
+          audio: false
+        });
+        liveVideo.srcObject = mediaStream;
+        await liveVideo.play();
+        setCameraStatus('Camera ready. Capture a frame to run prediction.');
+      } catch (err) {
+        setCameraStatus('Unable to access webcam. Please allow camera permission.');
+      }
+    }
+
+    function stopCamera() {
+      if (!mediaStream) return;
+      mediaStream.getTracks().forEach((track) => track.stop());
+      liveVideo.srcObject = null;
+      mediaStream = null;
+      setCameraStatus('Camera stopped.');
+    }
+
+    async function previewCapturedDetection(dataURL) {
+      if (detectionInFlight) return;
+      detectionInFlight = true;
+      setCameraStatus('Running prediction on captured frame...');
+      try {
+        const response = await fetch(detectFrameUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ image: dataURL })
+        });
+        const data = await response.json();
+        if (!response.ok || !data.ok) {
+          throw new Error(data.message || 'Prediction failed.');
+        }
+        capturedPreview.src = data.image;
+        const labels = data.detected_classes || [];
+        setCameraStatus(labels.length ? `Detected: ${labels.join(', ')}` : 'No target class detected in this frame.');
+      } catch (err) {
+        setCameraStatus(err.message || 'Prediction failed for captured frame.');
+      } finally {
+        detectionInFlight = false;
+      }
+    }
+
+    function captureFrame() {
+      if (!liveVideo.videoWidth || !liveVideo.videoHeight) {
+        setCameraStatus('Start camera before capture.');
+        return;
+      }
+      const canvas = document.createElement('canvas');
+      const maxWidth = 960;
+      const scale = Math.min(1, maxWidth / liveVideo.videoWidth);
+      canvas.width = Math.round(liveVideo.videoWidth * scale);
+      canvas.height = Math.round(liveVideo.videoHeight * scale);
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(liveVideo, 0, 0, canvas.width, canvas.height);
+      const dataURL = canvas.toDataURL('image/jpeg', 0.85);
+      capturedPreview.src = dataURL;
+      capturedInput.value = dataURL;
+      imageFileInput.value = '';
+      previewCapturedDetection(dataURL);
+    }
+
+    imageFileInput.addEventListener('change', () => {
+      if (imageFileInput.files.length > 0) {
+        capturedInput.value = '';
+        capturedPreview.removeAttribute('src');
+        imageFileInput.disabled = false;
+        setCameraStatus('Image selected. Enter plate and assign challan.');
+      }
+    });
+
+    detectForm.addEventListener('submit', (e) => {
+      const hasUpload = imageFileInput.files.length > 0;
+      const hasCapture = capturedInput.value.trim().length > 0;
+      manualPlateInput.value = normalizePlate(manualPlateInput.value);
+      if (!hasUpload && !hasCapture) {
+        e.preventDefault();
+        alert('Upload an image or capture from webcam.');
+        return;
+      }
+      if (!manualPlateInput.value) {
+        const allowBlank = confirm('No number plate entered. Continue with automatic plate reading / UNKNOWN assignment?');
+        if (!allowBlank) {
+          e.preventDefault();
+          manualPlateInput.focus();
+          return;
+        }
+      }
+      imageFileInput.disabled = false;
+    });
+
+    manualPlateInput.addEventListener('input', () => {
+      const cursorPosition = manualPlateInput.selectionStart;
+      manualPlateInput.value = normalizePlate(manualPlateInput.value);
+      manualPlateInput.setSelectionRange(cursorPosition, cursorPosition);
+      updateAssignNote();
+    });
+    updateAssignNote();
+
+    startBtn.addEventListener('click', startCamera);
+    stopBtn.addEventListener('click', stopCamera);
+    captureBtn.addEventListener('click', captureFrame);
+    window.addEventListener('beforeunload', stopCamera);
+  </script>
+</body>
+</html>

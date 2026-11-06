@@ -1,0 +1,565 @@
+body.admin-auth-page,
+body.admin-page {
+  margin: 0;
+  min-height: 100vh;
+  font-family: "Inter", "DM Sans", Arial, sans-serif;
+  color: var(--app-text);
+  background:
+    linear-gradient(120deg, rgba(8, 11, 16, 0.92), rgba(8, 11, 16, 0.76)),
+    url("/static/images/track-bg.jpg") center/cover fixed no-repeat;
+}
+
+html[data-theme="light"] body.admin-auth-page,
+html[data-theme="light"] body.admin-page {
+  background:
+    linear-gradient(120deg, rgba(238, 243, 248, 0.90), rgba(248, 250, 252, 0.82)),
+    url("/static/images/track-bg.jpg") center/cover fixed no-repeat;
+}
+
+.admin-auth-page {
+  display: grid;
+  place-items: center;
+  padding: 24px;
+}
+
+.admin-auth-shell {
+  width: min(1120px, 100%);
+  min-height: 660px;
+  display: grid;
+  grid-template-columns: 1.05fr 0.95fr;
+  border: 1px solid var(--app-line);
+  border-radius: 22px;
+  overflow: hidden;
+  background: color-mix(in srgb, var(--app-surface) 92%, transparent);
+  box-shadow: var(--app-shadow);
+}
+
+.admin-auth-visual {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 34px;
+  background:
+    linear-gradient(145deg, rgba(9, 13, 20, 0.86), rgba(9, 13, 20, 0.52)),
+    url("/static/images/weichao-deng-iLQx4PNG29g-unsplash.jpg") center/cover no-repeat;
+  color: #ffffff;
+}
+
+.admin-auth-visual::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, transparent, rgba(0, 0, 0, 0.42));
+  pointer-events: none;
+}
+
+.admin-auth-visual > * {
+  position: relative;
+  z-index: 1;
+}
+
+.admin-eyebrow {
+  margin: 0 0 10px;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.72);
+}
+
+.admin-auth-title {
+  max-width: 540px;
+  margin: 0;
+  font-size: clamp(38px, 5vw, 62px);
+  line-height: 0.98;
+  font-weight: 900;
+  letter-spacing: -0.04em;
+}
+
+.admin-auth-copy {
+  max-width: 500px;
+  margin: 16px 0 0;
+  color: rgba(255, 255, 255, 0.78) !important;
+  font-size: 15px;
+  line-height: 1.7;
+}
+
+.admin-status-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.admin-status-item {
+  min-height: 86px;
+  padding: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.24);
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.24);
+  backdrop-filter: blur(8px);
+}
+
+.admin-status-label {
+  display: block;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.68);
+}
+
+.admin-status-value {
+  display: block;
+  margin-top: 12px;
+  font-size: 20px;
+  font-weight: 900;
+  color: #ffffff;
+}
+
+.admin-login-panel {
+  display: flex;
+  align-items: center;
+  padding: 34px;
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--app-surface) 96%, transparent), var(--app-surface));
+}
+
+.admin-login-card {
+  width: 100%;
+  max-width: 430px;
+  margin: 0 auto;
+}
+
+.admin-lockup {
+  display: flex;
+  gap: 13px;
+  align-items: center;
+  margin-bottom: 26px;
+}
+
+.admin-mark {
+  width: 48px;
+  height: 48px;
+  border-radius: 8px;
+  display: grid;
+  place-items: center;
+  color: #ffffff;
+  font-weight: 900;
+  background: linear-gradient(135deg, var(--app-primary), var(--app-primary-2));
+  box-shadow: 0 14px 28px color-mix(in srgb, var(--app-primary) 34%, transparent);
+}
+
+.admin-lockup h1,
+.admin-section-title {
+  margin: 0;
+  font-size: 27px;
+  font-weight: 900;
+  letter-spacing: -0.03em;
+  color: var(--app-text);
+}
+
+.admin-lockup p,
+.admin-section-copy {
+  margin: 3px 0 0;
+  color: var(--app-muted) !important;
+  font-weight: 700;
+  font-size: 13px;
+}
+
+.admin-form label {
+  margin-bottom: 7px;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.admin-form .form-control,
+.admin-page .form-control,
+.admin-page .custom-select {
+  min-height: 46px;
+  border-radius: 8px;
+  font-weight: 700;
+}
+
+.admin-submit,
+.admin-page .btn-run,
+.admin-page .btn-live,
+.admin-page .btn-primary {
+  min-height: 46px;
+  border: 0;
+  border-radius: 8px;
+  padding: 0 18px;
+  color: #ffffff !important;
+  font-weight: 900;
+  background: linear-gradient(135deg, var(--app-primary), var(--app-primary-2)) !important;
+  box-shadow: 0 14px 28px color-mix(in srgb, var(--app-primary) 25%, transparent);
+}
+
+.admin-submit {
+  width: 100%;
+}
+
+.admin-back-link {
+  display: inline-flex;
+  align-items: center;
+  margin-top: 16px;
+  color: var(--app-muted);
+  font-size: 13px;
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.admin-back-link:hover {
+  color: var(--app-primary);
+}
+
+.admin-page .topbar {
+  padding: 16px 22px;
+  background: color-mix(in srgb, var(--app-surface) 88%, transparent) !important;
+  backdrop-filter: blur(14px);
+  border-bottom: 1px solid var(--app-line);
+}
+
+.admin-page .brand {
+  color: var(--app-text);
+  letter-spacing: -0.03em;
+}
+
+.admin-page .sub {
+  color: var(--app-muted) !important;
+}
+
+.admin-page nav a,
+.admin-page .navx a,
+.admin-page .btn-outline-light,
+.admin-page .btn-outline-danger,
+.admin-page .btn-outline-secondary {
+  min-height: 36px;
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid var(--app-line) !important;
+  border-radius: 8px !important;
+  padding: 7px 11px !important;
+  color: var(--app-text) !important;
+  background: var(--app-surface-2) !important;
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.admin-page nav a:hover,
+.admin-page .navx a:hover,
+.admin-page .btn-outline-light:hover,
+.admin-page .btn-outline-danger:hover,
+.admin-page .btn-outline-secondary:hover {
+  border-color: color-mix(in srgb, var(--app-primary) 48%, var(--app-line)) !important;
+  color: #ffffff !important;
+  background: linear-gradient(135deg, var(--app-primary), var(--app-primary-2)) !important;
+}
+
+.admin-page .wrap {
+  max-width: 1180px;
+  margin: 24px auto;
+  padding: 0 18px 34px;
+}
+
+.admin-page .cardx,
+.admin-page .panel,
+.admin-page .camera-box,
+.admin-page .chip,
+.admin-page .assign-note {
+  background: color-mix(in srgb, var(--app-surface) 96%, transparent) !important;
+  border: 1px solid var(--app-line) !important;
+  border-radius: 8px !important;
+  box-shadow: var(--app-shadow);
+}
+
+.admin-page .card-head,
+.admin-page .head {
+  background: linear-gradient(120deg, color-mix(in srgb, var(--app-primary) 16%, transparent), transparent) !important;
+  border-bottom: 1px solid var(--app-line) !important;
+  color: var(--app-text);
+}
+
+.admin-page .preview,
+.admin-page .stream,
+.admin-page .camera-box video,
+.admin-page .camera-box img {
+  border-radius: 8px !important;
+  border-color: var(--app-line) !important;
+  background: #05070c !important;
+}
+
+.admin-page .btn-stop,
+.admin-page .btn-outline-secondary {
+  color: var(--app-text) !important;
+  background: var(--app-surface-2) !important;
+}
+
+.admin-page .dot.on {
+  background: var(--app-accent) !important;
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--app-accent) 18%, transparent) !important;
+}
+
+.admin-hero {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 18px;
+  margin-bottom: 14px;
+  padding: 20px;
+  border: 1px solid var(--app-line);
+  border-radius: 8px;
+  background:
+    linear-gradient(120deg, color-mix(in srgb, var(--app-primary) 14%, transparent), transparent),
+    var(--app-surface);
+  box-shadow: var(--app-shadow);
+}
+
+.admin-hero h2 {
+  max-width: 720px;
+  margin: 0;
+  font-size: clamp(28px, 4vw, 44px);
+  line-height: 1.04;
+  font-weight: 900;
+  letter-spacing: -0.04em;
+  color: var(--app-text);
+}
+
+.admin-hero p:not(.admin-eyebrow) {
+  max-width: 680px;
+  margin: 10px 0 0;
+  color: var(--app-muted) !important;
+  font-weight: 700;
+}
+
+.admin-hero-actions {
+  display: flex;
+  gap: 9px;
+  flex-wrap: wrap;
+}
+
+.admin-hero-actions a {
+  min-height: 42px;
+  display: inline-flex;
+  align-items: center;
+  border-radius: 8px;
+  padding: 0 14px;
+  background: linear-gradient(135deg, var(--app-primary), var(--app-primary-2));
+  color: #ffffff !important;
+  font-size: 13px;
+  font-weight: 900;
+  text-decoration: none;
+}
+
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.dash-card,
+.dash-panel {
+  border: 1px solid var(--app-line);
+  border-radius: 8px;
+  background: var(--app-surface);
+  box-shadow: var(--app-shadow);
+}
+
+.dash-card {
+  min-height: 138px;
+  padding: 16px;
+}
+
+.dash-card.primary {
+  background:
+    linear-gradient(145deg, color-mix(in srgb, var(--app-primary) 22%, transparent), transparent),
+    var(--app-surface);
+}
+
+.dash-label {
+  display: block;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--app-muted);
+}
+
+.dash-card strong {
+  display: block;
+  margin-top: 12px;
+  font-size: 38px;
+  line-height: 1;
+  font-weight: 900;
+  letter-spacing: -0.04em;
+  color: var(--app-text);
+}
+
+.dash-note {
+  display: block;
+  margin-top: 12px;
+  color: var(--app-muted);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.dashboard-split {
+  display: grid;
+  grid-template-columns: 1.25fr 0.75fr;
+  gap: 14px;
+  margin-bottom: 14px;
+}
+
+.dash-panel {
+  overflow: hidden;
+}
+
+.dash-panel-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 15px 16px;
+  border-bottom: 1px solid var(--app-line);
+  background: color-mix(in srgb, var(--app-surface-2) 72%, transparent);
+}
+
+.dash-panel-head h3 {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 900;
+  color: var(--app-text);
+}
+
+.dash-panel-head span {
+  color: var(--app-muted);
+  font-size: 12px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.violation-list,
+.check-list {
+  padding: 14px 16px;
+}
+
+.violation-row + .violation-row,
+.check-list div + div {
+  margin-top: 14px;
+}
+
+.violation-meta {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.violation-meta strong,
+.check-list strong {
+  color: var(--app-text);
+  font-weight: 900;
+}
+
+.violation-meta span,
+.check-list span {
+  color: var(--app-muted);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.violation-bar {
+  height: 10px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--app-surface-2);
+}
+
+.violation-bar span {
+  display: block;
+  height: 100%;
+  min-width: 8px;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--app-primary), var(--app-primary-2));
+}
+
+.check-list div {
+  display: grid;
+  gap: 5px;
+  padding: 12px;
+  border: 1px solid var(--app-line);
+  border-radius: 8px;
+  background: var(--app-surface-2);
+}
+
+.admin-table {
+  margin-bottom: 0;
+}
+
+.admin-table th {
+  border-top: 0;
+  color: var(--app-muted);
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  min-height: 26px;
+  border-radius: 999px;
+  padding: 0 10px;
+  font-size: 12px;
+  font-weight: 900;
+  background: color-mix(in srgb, var(--app-primary) 18%, transparent);
+  color: var(--app-primary);
+}
+
+.status-pill.paid {
+  background: color-mix(in srgb, var(--app-accent) 18%, transparent);
+  color: var(--app-accent);
+}
+
+.empty-state {
+  margin: 0;
+  padding: 18px 16px;
+  color: var(--app-muted) !important;
+  font-weight: 800;
+}
+
+@media (max-width: 920px) {
+  .admin-auth-shell {
+    grid-template-columns: 1fr;
+    min-height: auto;
+  }
+
+  .admin-auth-visual,
+  .admin-login-panel {
+    padding: 24px;
+  }
+
+  .admin-status-grid {
+    grid-template-columns: 1fr;
+    margin-top: 28px;
+  }
+
+  .admin-page .topbar {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .admin-hero {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .dashboard-grid,
+  .dashboard-split {
+    grid-template-columns: 1fr;
+  }
+}

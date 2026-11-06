@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Traffic prediction using machine learning</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/4.6.1/css/bootstrap.min.css">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #f8f9fa;
+            margin: 0;
+        }
+
+        .navbar {
+            margin-bottom: 20px;
+        }
+
+        .navbar-brand img {
+            max-height: 50px;
+        }
+
+        .navbar-nav .nav-link {
+            font-size: 16px;
+            color: #333;
+        }
+
+        .navbar-nav .nav-link:hover {
+            color: #007bff;
+        }
+
+        #map {
+            height: 600px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            margin-top: 20px;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="hero_area">
+        <!-- Header section starts -->
+        <header class="header_section">
+            <div class="container">
+                <div class="row">
+                    <div class="col-12">
+                        <nav class="navbar navbar-expand-lg custom_nav-container">
+                            <a class="navbar-brand" href="#">
+                                <img src="/static/images/icons8-car-48.png" alt="Carint Logo">
+                                Vehicle Traffic Prediction
+                            </a>
+                            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
+                                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                                <span class="navbar-toggler-icon"></span>
+                            </button>
+                            <div class="collapse navbar-collapse" id="navbarNav">
+                                <ul class="navbar-nav ml-auto">
+                                    <li class="nav-item active">
+                                        <a class="nav-link" href="/home">Home <span class="sr-only">(current)</span></a>
+                                    </li>
+                                    <li class="nav-item dropdown">
+                                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                          Predict
+                                        </a>
+                                        <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                                          <a class="dropdown-item" href="{{ url_for('predict1') }}">Prediction 1</a>
+                                          <a class="dropdown-item" href="{{ url_for('predict2') }}">Prediction 2</a>
+                                        </div>
+                                      </li>
+                                      
+                                    <li class="nav-item">
+                                        <a class="nav-link" href="/map_view">Map View</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link" href="/logout">Logout</a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </header>
+        <!-- Header section ends -->
+
+    </div>
+
+    <!-- Page Content -->
+    <h1>Real-Time Traffic Map</h1>
+    <div id="map"></div>
+
+    <!-- JavaScript -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/2.11.6/umd/popper.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/4.6.1/js/bootstrap.min.js"></script>
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script>
+        // Initialize the map
+        var map = L.map('map').setView([18.7, 73.9], 12);
+
+        // Add a tile layer
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 18,
+            attribution: 'Map data © OpenStreetMap contributors'
+        }).addTo(map);
+
+        // Variable to store the current marker
+        var currentMarker = null;
+
+        // Function to update the map with a new marker
+        function updateMarker(lat, lon, condition) {
+            // Remove the existing marker if there is one
+            if (currentMarker) {
+                map.removeLayer(currentMarker);
+            }
+
+            // Add a new marker
+            currentMarker = L.marker([lat, lon]).addTo(map)
+                .bindPopup(`Traffic Condition: ${condition}`)
+                .openPopup();
+        }
+
+        // Add click event to the map
+        map.on('click', function(e) {
+            var lat = e.latlng.lat;
+            var lon = e.latlng.lng;
+
+            console.log(`Clicked location: Latitude ${lat}, Longitude ${lon}`);
+
+            // Fetch traffic condition for the clicked location
+            fetch(`/get_traffic/${lat}/${lon}`)
+                .then(response => {
+                    if (!response.ok) {
+                        console.error('Failed to fetch traffic condition.');
+                        return;
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('Received traffic condition:', data);
+                    // Update marker on the map
+                    updateMarker(lat, lon, data.traffic_condition);
+                })
+                .catch(error => {
+                    console.error('Error fetching traffic condition:', error);
+                });
+        });
+    </script>
+</body>
+</html>

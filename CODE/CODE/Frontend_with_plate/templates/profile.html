@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ViolaTracker Profile</title>
+  <link rel="stylesheet" href="/static/css/bootstrap.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    :root{--bg:#090a0f;--panel:#12141c;--panel2:#171a23;--text:#f2f4f8;--muted:#aeb5c3;--line:#2b2f3d;--red:#e50914;--red2:#ff3641}
+    body{margin:0;min-height:100vh;color:var(--text);font-family:'DM Sans',sans-serif;background:radial-gradient(circle at 90% 0%, rgba(229,9,20,.18), transparent 35%), linear-gradient(140deg,#07080c,#0b0d13 58%,#11141d)}
+    .topbar{backdrop-filter:blur(10px);background:rgba(8,9,13,.86);border-bottom:1px solid var(--line)}
+    .topbar-inner{max-width:1050px;margin:0 auto;padding:13px 16px;display:flex;align-items:center;justify-content:space-between}
+    .brand{margin:0;font-family:'Montserrat';font-size:28px;font-weight:800}
+    .navx a{margin-left:12px;color:#dbe0eb;text-decoration:none;font-weight:700}
+    .wrap{max-width:1050px;margin:22px auto;padding:0 16px 28px}
+    .panel{border:1px solid var(--line);background:linear-gradient(180deg,#12141c,#10121a);border-radius:20px;box-shadow:0 24px 54px rgba(0,0,0,.45);overflow:hidden}
+    .panel-head{padding:18px;background:linear-gradient(120deg,rgba(229,9,20,.14),rgba(255,54,65,.08));border-bottom:1px solid var(--line)}
+    .panel-head h2{margin:0;font-size:24px;font-family:'Montserrat';font-weight:800}
+    .panel-head p{margin:6px 0 0;color:var(--muted)}
+    .panel-body{padding:18px}
+    label{font-size:13px;font-weight:700;margin-bottom:6px}
+    .form-control,.custom-select{min-height:44px;border-radius:11px;border:1px solid #303545;background:#0f121a;color:#fff;font-weight:600}
+    .form-control:focus,.custom-select:focus{border-color:#ff4b54;box-shadow:0 0 0 .2rem rgba(229,9,20,.18);background:#0f121a;color:#fff}
+    .btn-save{width:100%;min-height:46px;border:0;border-radius:12px;background:linear-gradient(135deg,var(--red),var(--red2));color:#fff;font-weight:800}
+    .alert{border-radius:12px;font-weight:700}
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <h1 class="brand">ViolaTracker</h1>
+      <nav class="navx">
+        <a href="{{ url_for('home') }}">Home</a>
+        <a href="{{ url_for('my_challans') }}">My Challans</a>
+        <a href="{{ url_for('logout') }}">Logout</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <section class="panel">
+      <div class="panel-head">
+        <h2>Edit Profile</h2>
+        <p>Keep your details accurate for precise challan mapping.</p>
+      </div>
+      <div class="panel-body">
+        {% with messages = get_flashed_messages(with_categories=True) %}
+        {% if messages %}{% for category, message in messages %}<div class="alert alert-{{ category }}">{{ message }}</div>{% endfor %}{% endif %}
+        {% endwith %}
+
+        <form method="POST" action="{{ url_for('profile') }}">
+          <div class="form-row">
+            <div class="form-group col-md-6"><label for="first_name">First Name</label><input type="text" class="form-control" id="first_name" name="first_name" value="{{ user.first_name or '' }}" required></div>
+            <div class="form-group col-md-6"><label for="last_name">Last Name</label><input type="text" class="form-control" id="last_name" name="last_name" value="{{ user.last_name or '' }}" required></div>
+          </div>
+          <div class="form-group"><label for="college_reg_no">College Registration Number</label><input type="text" class="form-control" id="college_reg_no" name="college_reg_no" value="{{ user.college_reg_no or '' }}" required></div>
+          <div class="form-group"><label for="email">Email Address</label><input type="email" class="form-control" id="email" name="email" value="{{ user.email }}" required></div>
+          <div class="form-group"><label for="mobile">Mobile Number (SMS)</label><input type="text" class="form-control" id="mobile" name="mobile" value="{{ user.mobile or '' }}" placeholder="+919876543210" required></div>
+          <div class="form-row">
+            <div class="form-group col-md-6"><label for="program">Program</label><select class="custom-select" id="program" name="program" required><option value="BTECH" {% if user.program == 'BTECH' %}selected{% endif %}>BTech</option><option value="MTECH" {% if user.program == 'MTECH' %}selected{% endif %}>MTech</option></select></div>
+            <div class="form-group col-md-6"><label for="study_year">Year of Study</label><select class="custom-select" id="study_year" name="study_year" required><option value="1st Year" {% if user.study_year == '1st Year' %}selected{% endif %}>1st Year</option><option value="2nd Year" {% if user.study_year == '2nd Year' %}selected{% endif %}>2nd Year</option><option value="3rd Year" {% if user.study_year == '3rd Year' %}selected{% endif %}>3rd Year</option><option value="4th Year" {% if user.study_year == '4th Year' %}selected{% endif %}>4th Year</option></select></div>
+          </div>
+          <div class="form-group"><label for="vehicle_number">Vehicle Number</label><input type="text" class="form-control" id="vehicle_number" name="vehicle_number" value="{{ user.vehicle_number }}" required></div>
+          <button type="submit" class="btn-save">Save Profile</button>
+        </form>
+      </div>
+    </section>
+  </main>
+  <script src="/static/js/theme.js"></script>
+</body>
+</html>

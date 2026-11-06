@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ViolaTracker My Challans</title>
+  <link rel="stylesheet" href="/static/css/bootstrap.css" />
+  <style>
+    :root{--bg:#090a0f;--panel:#12141c;--panel2:#171923;--text:#f2f4f8;--muted:#aeb5c3;--line:#2b2f3d;--red:#e50914;--red2:#ff3641;--ok:#12b76a;--warn:#f59e0b}
+    body{margin:0;min-height:100vh;color:var(--text);font-family:DM Sans,sans-serif;background:radial-gradient(circle at 85% 0%, rgba(229,9,20,.2), transparent 34%), linear-gradient(145deg,#07080c,#0b0d13 58%,#11141d)}
+    .topbar{background:rgba(8,9,13,.86);backdrop-filter:blur(10px);border-bottom:1px solid var(--line);padding:12px 20px;display:flex;align-items:center;justify-content:space-between}
+    .brand{font-size:28px;font-weight:800;margin:0}
+    .nav a{margin-left:12px;font-weight:700;color:#dde3ef;text-decoration:none}
+    .wrap{max-width:1180px;margin:24px auto;padding:0 16px}
+    .summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;margin-bottom:12px}
+    .tile{background:linear-gradient(180deg,#12141c,#10121a);border:1px solid var(--line);border-radius:14px;padding:13px;box-shadow:0 12px 26px rgba(0,0,0,.3)}
+    .k{font-size:11px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.08em}
+    .v{margin-top:6px;font-size:24px;font-weight:800}
+    .panel{background:linear-gradient(180deg,#12141c,#10121a);border:1px solid var(--line);border-radius:16px;box-shadow:0 18px 38px rgba(0,0,0,.35);overflow:hidden}
+    .panel-head{padding:15px 18px;font-weight:800;border-bottom:1px solid var(--line);background:linear-gradient(120deg,rgba(229,9,20,.15),transparent)}
+    .table{margin-bottom:0;color:#edf1f8}
+    .table th{border-top:none;font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:#c3cadd;border-bottom:1px solid var(--line)}
+    .table td{border-color:#232736}
+    .status{padding:4px 10px;border-radius:999px;font-size:12px;font-weight:800;display:inline-block}
+    .status.pending{background:rgba(245,158,11,.2);color:#ffd08a}
+    .status.paid{background:rgba(18,183,106,.2);color:#8ff0be}
+    .btn-primary{background:linear-gradient(135deg,var(--red),var(--red2));border:0}
+    .btn-primary:hover{filter:brightness(1.05)}
+    .empty{padding:24px;color:#9ff0c3;font-weight:700;margin:0}
+    .alert{border-radius:12px;font-weight:700}
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <h1 class="brand">ViolaTracker</h1>
+    <nav class="nav">
+      <a href="{{ url_for('home') }}">Home</a>
+      <a href="{{ url_for('profile') }}">Profile</a>
+      <a href="{{ url_for('logout') }}">Logout</a>
+    </nav>
+  </header>
+
+  <main class="wrap">
+    {% with messages = get_flashed_messages(with_categories=True) %}
+    {% if messages %}{% for category, message in messages %}<div class="alert alert-{{ category }}">{{ message }}</div>{% endfor %}{% endif %}
+    {% endwith %}
+
+    <section class="summary">
+      <article class="tile"><div class="k">Registered Plate</div><div class="v">{{ registered_plate }}</div></article>
+      <article class="tile"><div class="k">Pending Challans</div><div class="v">{{ pending_count }}</div></article>
+      <article class="tile"><div class="k">New Updates</div><div class="v">{{ new_count }}</div></article>
+      <article class="tile"><div class="k">Paid Challans</div><div class="v">{{ paid_count }}</div></article>
+      <article class="tile"><div class="k">Total Pending (Rs)</div><div class="v">{{ total_pending_amount }}</div></article>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head">My Challans</div>
+      {% if challans %}
+      <div class="table-responsive">
+        <table class="table table-striped table-hover">
+          <thead>
+            <tr>
+              <th>Time</th><th>Violation</th><th>Plate</th><th>Fine (Rs)</th><th>Status</th><th>Payment</th><th>Evidence</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for c in challans %}
+            <tr>
+              <td>{{ c.detection_time }}</td>
+              <td>{{ c.detected_class }}</td>
+              <td>{{ c.plate_number }}</td>
+              <td>{{ c.fine_amount }}</td>
+              <td><span class="status {{ 'pending' if c.status == 'PENDING' else 'paid' }}">{{ c.status }}</span></td>
+              <td>
+                {% if c.status == 'PENDING' %}
+                <button class="btn btn-sm btn-primary pay-now-btn" type="button" data-challan-id="{{ c.id }}" data-amount="{{ c.fine_amount }}">Pay Now</button>
+                {% else %}
+                <small>Paid<br>{{ c.payment_reference if c.payment_reference is defined and c.payment_reference else '-' }}<br>{{ c.paid_at if c.paid_at is defined and c.paid_at else '-' }}</small>
+                {% endif %}
+              </td>
+              <td><a href="{{ url_for('uploaded_file', filename=c.image_filename) }}" target="_blank">View</a></td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <p class="empty">No challans found for your account.</p>
+      {% endif %}
+    </section>
+  </main>
+
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+  <script>
+    async function postJSON(url, payload) {
+      const resp = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload || {}),
+      });
+      const raw = await resp.text();
+      let data = {};
+      try { data = raw ? JSON.parse(raw) : {}; } catch (e) { data = {}; }
+      if (!resp.ok || !data.ok) {
+        const htmlError = raw && raw.toLowerCase().includes('internal server error');
+        const fallback = htmlError ? `Server returned 500 HTML. Restart app from Frontend_with_plate and retry.` : (raw && !data.message ? raw.slice(0, 180) : '');
+        throw new Error(data.message || fallback || `Request failed (HTTP ${resp.status})`);
+      }
+      return data;
+    }
+
+    document.querySelectorAll('.pay-now-btn').forEach((btn) => {
+      btn.addEventListener('click', async () => {
+        const challanId = btn.dataset.challanId;
+        btn.disabled = true;
+        const oldText = btn.textContent;
+        btn.textContent = 'Creating order...';
+
+        try {
+          const order = await postJSON(`/challans/${challanId}/create-order`, {});
+          if (order.fallback) {
+            btn.textContent = 'Processing local payment...';
+            await postJSON(`/challans/${challanId}/pay-local`, {});
+            window.location.reload();
+            return;
+          }
+
+          const options = {
+            key: order.key,
+            amount: order.amount,
+            currency: 'INR',
+            name: 'ViolaTracker',
+            description: order.description,
+            order_id: order.order_id,
+            prefill: { name: order.name || '', email: order.email || '' },
+            theme: { color: '#E50914' },
+            handler: async function (response) {
+              btn.textContent = 'Verifying...';
+              await postJSON('/payments/verify', {
+                challan_id: order.challan_id,
+                razorpay_payment_id: response.razorpay_payment_id,
+                razorpay_order_id: response.razorpay_order_id,
+                razorpay_signature: response.razorpay_signature,
+              });
+              window.location.reload();
+            },
+          };
+
+          const rzp = new Razorpay(options);
+          rzp.on('payment.failed', function () {
+            alert('Payment failed. Please try again.');
+            btn.disabled = false;
+            btn.textContent = oldText;
+          });
+          rzp.open();
+        } catch (err) {
+          alert(err.message || 'Unable to start payment');
+          btn.disabled = false;
+          btn.textContent = oldText;
+        }
+      });
+    });
+  </script>
+  <script src="/static/js/theme.js"></script>
+</body>
+</html>

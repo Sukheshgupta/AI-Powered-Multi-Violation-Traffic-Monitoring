@@ -1,0 +1,55 @@
+# Python virtual environments
+venv/
+.venv/
+env/
+ENV/
+
+# Python cache and temporary files
+__pycache__/
+*.pyc
+.pytest_cache/
+.ipynb_checkpoints/
+
+# Secrets and environment variables
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# macOS
+.DS_Store
+
+# Generated outputs
+runs/
+outputs/
+logs/
+
+# Large duplicate archives
+*.zip
+
+# Local databases
+*.db
+*.sqlite
+*.sqlite3
+
+# IDE settings
+.vscode/
+.idea/
+
+# User-uploaded images and videos
+**/uploads/
+
+# Generated detection results and training outputs
+**/runs/
+**/results/
+
+# Large temporary video files
+*.mov
+
+# Preserve trained YOLOv11 weights
+!CODE/CODE/BACKEND/results-Yolov11/runs/
+!CODE/CODE/BACKEND/results-Yolov11/runs/detect/
+!CODE/CODE/BACKEND/results-Yolov11/runs/detect/train/
+!CODE/CODE/BACKEND/results-Yolov11/runs/detect/train/weights/
+!CODE/CODE/BACKEND/results-Yolov11/runs/detect/train/weights/*.pt

@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ViolaTracker Login</title>
+  <link rel="stylesheet" href="/static/css/bootstrap.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    :root{--bg:#090a0f;--panel:#12141c;--panel2:#171923;--text:#f2f4f8;--muted:#aeb5c3;--line:#2b2f3d;--red:#e50914;--red2:#ff3641}
+    *{box-sizing:border-box}
+    body{
+      margin:0;min-height:100vh;color:var(--text);font-family:'DM Sans',sans-serif;
+      background:
+        radial-gradient(circle at 12% 0%, rgba(229,9,20,.2), transparent 33%),
+        radial-gradient(circle at 88% 100%, rgba(255,54,65,.14), transparent 36%),
+        linear-gradient(145deg,#07080c,#0c0e15 52%,#10131b);
+      display:grid;place-items:center;padding:24px;
+    }
+    .shell{
+      width:100%;max-width:1120px;display:grid;grid-template-columns:1.05fr .95fr;
+      border:1px solid var(--line);border-radius:24px;overflow:hidden;
+      background:rgba(12,14,20,.86);box-shadow:0 30px 70px rgba(0,0,0,.5)
+    }
+    .left{
+      padding:34px;position:relative;overflow:hidden;
+      background:
+        linear-gradient(120deg, rgba(9,10,16,.78), rgba(9,10,16,.52)),
+        url('/static/images/abcdggg.jpg') center/cover no-repeat;
+    }
+    .left h1{margin:0;font-family:'Montserrat';font-weight:800;font-size:38px;letter-spacing:-.03em}
+    .left p{margin-top:10px;color:#d5dbe8;font-size:15px;max-width:520px}
+    .chips{margin-top:18px;display:grid;grid-template-columns:1fr 1fr;gap:9px}
+    .chip{border:1px solid rgba(255,255,255,.3);border-radius:11px;padding:10px;font-size:12px;font-weight:700;background:rgba(0,0,0,.22)}
+
+    .right{padding:24px;background:linear-gradient(180deg,rgba(18,20,28,.95),rgba(14,16,24,.95))}
+    .portal-switch{display:flex;gap:8px;margin-bottom:12px}
+    .tab-btn,.portal-chip{
+      border:1px solid var(--line);background:#171a23;color:#e8edf9;
+      border-radius:999px;padding:7px 14px;font-size:12px;font-weight:800;text-decoration:none;cursor:pointer
+    }
+    .tab-btn.active,.portal-chip.active{border-color:transparent;background:linear-gradient(135deg,var(--red),var(--red2));color:#fff}
+
+    .form-block{display:none}.form-block.active{display:block}
+    label{font-size:13px;font-weight:700;margin-bottom:6px;color:#e6ebf7}
+    .form-control,.custom-select{
+      min-height:44px;border-radius:11px;border:1px solid #303545;background:#0f121a;color:#fff;font-weight:600
+    }
+    .form-control:focus,.custom-select:focus{border-color:#ff4b54;box-shadow:0 0 0 .2rem rgba(229,9,20,.18);background:#0f121a;color:#fff}
+    .btn-main{width:100%;height:46px;border:0;border-radius:12px;background:linear-gradient(135deg,var(--red),var(--red2));color:#fff;font-weight:800}
+    .alert{border-radius:12px;font-weight:700}
+
+    @media (max-width:980px){.shell{grid-template-columns:1fr}.chips{grid-template-columns:1fr}.left,.right{padding:18px}}
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <section class="left">
+      <h1>ViolaTracker</h1>
+      <p>Role-based smart traffic platform. Admin assigns challans. Users track pending fines and payment status instantly.</p>
+      <div class="chips">
+        <div class="chip">Helmet Detection</div>
+        <div class="chip">Triple Riding</div>
+        <div class="chip">Phone Usage</div>
+        <div class="chip">Wheeling</div>
+      </div>
+    </section>
+
+    <section class="right">
+      {% with messages = get_flashed_messages(with_categories=True) %}
+      {% if messages %}
+      {% for category, message in messages %}
+      <div class="alert alert-{{ category }}">{{ message }}</div>
+      {% endfor %}
+      {% endif %}
+      {% endwith %}
+
+      <div class="portal-switch">
+        <button id="login-tab" class="tab-btn" type="button" onclick="showLoginForm()">User</button>
+        <button id="register-tab" class="tab-btn" type="button" onclick="showRegisterForm()">Register</button>
+        <a class="portal-chip" href="{{ url_for('admin_login') }}">Admin Login</a>
+      </div>
+
+      <div id="login-form" class="form-block">
+        <form action="{{ url_for('login') }}" method="POST">
+          <div class="form-group">
+            <label for="login_email">Email Address</label>
+            <input type="email" class="form-control" id="login_email" name="email" required>
+          </div>
+          <div class="form-group">
+            <label for="login_password">Password</label>
+            <input type="password" class="form-control" id="login_password" name="password" required>
+          </div>
+          <button type="submit" class="btn-main">Login</button>
+        </form>
+      </div>
+
+      <div id="register-form" class="form-block">
+        <form action="{{ url_for('register') }}" method="POST">
+          <div class="form-row">
+            <div class="form-group col-md-6"><label for="first_name">First Name</label><input type="text" class="form-control" id="first_name" name="first_name" required></div>
+            <div class="form-group col-md-6"><label for="last_name">Last Name</label><input type="text" class="form-control" id="last_name" name="last_name" required></div>
+          </div>
+          <div class="form-group"><label for="college_reg_no">College Registration Number</label><input type="text" class="form-control" id="college_reg_no" name="college_reg_no" required></div>
+          <div class="form-group"><label for="reg_email">Email Address</label><input type="email" class="form-control" id="reg_email" name="email" required></div>
+          <div class="form-group"><label for="mobile">Mobile Number (SMS)</label><input type="text" class="form-control" id="mobile" name="mobile" placeholder="+919876543210" required></div>
+          <div class="form-row">
+            <div class="form-group col-md-6"><label for="password">Password</label><input type="password" class="form-control" id="password" name="password" required></div>
+            <div class="form-group col-md-6"><label for="confirm_password">Confirm Password</label><input type="password" class="form-control" id="confirm_password" name="confirm_password" required></div>
+          </div>
+          <div class="form-group"><label for="vehicle_number">Vehicle Number</label><input type="text" class="form-control" id="vehicle_number" name="vehicle_number" placeholder="Ex: TSGM7788" required></div>
+          <div class="form-row">
+            <div class="form-group col-md-6"><label for="program">Program</label><select class="custom-select" id="program" name="program" required><option value="">Select Program</option><option value="BTECH">BTech</option><option value="MTECH">MTech</option></select></div>
+            <div class="form-group col-md-6"><label for="study_year">Year of Study</label><select class="custom-select" id="study_year" name="study_year" required><option value="">Select Year</option><option value="1st Year">1st Year</option><option value="2nd Year">2nd Year</option><option value="3rd Year">3rd Year</option><option value="4th Year">4th Year</option></select></div>
+          </div>
+          <button type="submit" class="btn-main">Create Account</button>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    function showLoginForm(){
+      document.getElementById('login-form').classList.add('active');
+      document.getElementById('register-form').classList.remove('active');
+      document.getElementById('login-tab').classList.add('active');
+      document.getElementById('register-tab').classList.remove('active');
+    }
+    function showRegisterForm(){
+      document.getElementById('register-form').classList.add('active');
+      document.getElementById('login-form').classList.remove('active');
+      document.getElementById('register-tab').classList.add('active');
+      document.getElementById('login-tab').classList.remove('active');
+    }
+    window.onload=function(){
+      const formToShow="{{ show_form|default('login') }}";
+      if(formToShow==='register')showRegisterForm();else showLoginForm();
+    };
+  </script>
+  <script src="/static/js/theme.js"></script>
+</body>
+</html>

@@ -1,0 +1,13 @@
+train: ../train/images
+val: ../valid/images
+test: ../test/images
+
+nc: 5
+names: ['No Parking', 'Not Wearing Helmet', 'Triple Riding', 'Usage Of Phone While Riding', 'Wheeling']
+
+roboflow:
+  workspace: tru-projects-7dbwp
+  project: traffic-voilence-jzchr
+  version: 1
+  license: CC BY 4.0
+  url: https://universe.roboflow.com/tru-projects-7dbwp/traffic-voilence-jzchr/dataset/1

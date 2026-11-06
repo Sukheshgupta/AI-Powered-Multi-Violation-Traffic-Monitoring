@@ -1,0 +1,16 @@
+names:
+- No Parking
+- Not Wearing Helmet
+- Triple Riding
+- Usage Of Phone While Riding
+- Wheeling
+nc: 5
+roboflow:
+  license: CC BY 4.0
+  project: traffic-voilence-jzchr
+  url: https://universe.roboflow.com/tru-projects-7dbwp/traffic-voilence-jzchr/dataset/1
+  version: 1
+  workspace: tru-projects-7dbwp
+test: ../test/images
+train: ../train/images
+val: ../valid/images

@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ViolaTracker Live Prediction</title>
+  <link rel="stylesheet" href="/static/css/bootstrap.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    :root{--bg:#090a0f;--panel:#111319;--text:#f2f4f8;--muted:#aeb5c3;--line:#2b2f3d;--red:#e50914;--green:#28d17c}
+    body{margin:0;font-family:DM Sans,Arial,sans-serif;background:radial-gradient(circle at 20% 0%,rgba(229,9,20,.2),transparent 34%),linear-gradient(140deg,#07080c,#0b0d13 58%,#11141d);color:var(--text);min-height:100vh}
+    .topbar{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;background:rgba(8,9,13,.86);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:10}
+    .brand{margin:0;font-weight:800;font-size:24px}
+    .navx a{margin-left:10px;color:#dbe0eb;text-decoration:none;font-weight:700}
+    .wrap{max-width:1180px;margin:22px auto;padding:0 16px}
+    .cardx{background:linear-gradient(180deg,#12141c,#10121a);border:1px solid var(--line);border-radius:14px;overflow:hidden;box-shadow:0 20px 44px rgba(0,0,0,.45)}
+    .head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:15px 18px;border-bottom:1px solid var(--line);font-weight:800;background:linear-gradient(120deg,rgba(229,9,20,.15),transparent)}
+    .body{padding:18px}
+    .grid{display:grid;grid-template-columns:.82fr 1.18fr;gap:14px}
+    .panel{border:1px solid var(--line);border-radius:12px;background:#0d1017;padding:10px}
+    .panel-title{font-size:13px;font-weight:800;color:#dfe4ee;margin:0 0 8px}
+    .preview,.stream{width:100%;aspect-ratio:16/9;border-radius:10px;border:1px solid var(--line);background:#020307;object-fit:cover}
+    .stream{display:block}
+    .actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:12px}
+    .btn-live{border:0;border-radius:10px;height:42px;padding:0 18px;color:#fff;font-weight:800;background:linear-gradient(135deg,var(--red),#ff3641)}
+    .btn-live:disabled{opacity:.55;cursor:not-allowed}
+    .btn-stop{border:1px solid #555d6e;border-radius:10px;height:42px;padding:0 18px;color:#e9edf5;font-weight:800;background:#161a24}
+    .stats{display:flex;gap:10px;flex-wrap:wrap}
+    .chip{border:1px solid var(--line);border-radius:10px;padding:8px 11px;background:#151923;color:#dfe4ee;font-weight:800;font-size:13px}
+    .chip strong{color:#fff}
+    .dot{display:inline-block;width:9px;height:9px;border-radius:50%;background:#747d91;margin-right:7px}
+    .dot.on{background:var(--green);box-shadow:0 0 0 4px rgba(40,209,124,.16)}
+    .dot.err{background:#ff4b54;box-shadow:0 0 0 4px rgba(255,75,84,.14)}
+    canvas{display:none}
+    @media (max-width:920px){.grid{grid-template-columns:1fr}.topbar{align-items:flex-start;gap:12px;flex-direction:column}.navx a{margin-left:0;margin-right:10px}}
+  </style>
+  <link rel="stylesheet" href="/static/css/theme.css" />
+  <link rel="stylesheet" href="/static/css/admin.css" />
+  <script src="/static/js/theme.js" defer></script>
+</head>
+<body class="admin-page">
+  <header class="topbar">
+    <h1 class="brand">ViolaTracker Admin Prediction</h1>
+    <nav class="navx">
+      <a href="{{ url_for('admin_dashboard') }}">Dashboard</a>
+      <a href="/admin/detect">Detect & Assign</a>
+      <a href="/admin/prediction">Live Prediction</a>
+      <a href="{{ url_for('upload_video') }}">Upload Video</a>
+      <a href="{{ url_for('admin_logout') }}">Logout</a>
+    </nav>
+  </header>
+
+  <main class="wrap">
+    <section class="cardx">
+      <div class="head">
+        <span>Live Webcam Detection</span>
+        <div class="stats">
+          <span class="chip"><span class="dot" id="statusDot"></span><strong id="statusText">Stopped</strong></span>
+          <span class="chip">Violations: <strong id="violationText">None</strong></span>
+        </div>
+      </div>
+      <div class="body">
+        <div class="grid">
+          <div class="panel">
+            <p class="panel-title">Camera</p>
+            <video id="sourceVideo" class="preview" autoplay playsinline muted></video>
+            <div class="actions">
+              <button type="button" class="btn-live" id="startBtn">Start</button>
+              <button type="button" class="btn-stop" id="stopBtn" disabled>Stop</button>
+            </div>
+          </div>
+          <div class="panel">
+            <p class="panel-title">Detection</p>
+            <img id="detectedFrame" class="stream" alt="Detection frame" />
+          </div>
+        </div>
+        <canvas id="captureCanvas"></canvas>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const sourceVideo = document.getElementById('sourceVideo');
+    const detectedFrame = document.getElementById('detectedFrame');
+    const captureCanvas = document.getElementById('captureCanvas');
+    const startBtn = document.getElementById('startBtn');
+    const stopBtn = document.getElementById('stopBtn');
+    const statusText = document.getElementById('statusText');
+    const statusDot = document.getElementById('statusDot');
+    const violationText = document.getElementById('violationText');
+    const detectUrl = "{{ url_for('detect_frame_api') }}";
+
+    let mediaStream = null;
+    let detectionTimer = null;
+    let requestInFlight = false;
+
+    function setStatus(text, state) {
+      statusText.textContent = text;
+      statusDot.classList.remove('on', 'err');
+      if (state) statusDot.classList.add(state);
+    }
+
+    function setRunning(isRunning) {
+      startBtn.disabled = isRunning;
+      stopBtn.disabled = !isRunning;
+    }
+
+    async function startDetection() {
+      try {
+        mediaStream = await navigator.mediaDevices.getUserMedia({
+          video: { width: { ideal: 960 }, height: { ideal: 540 } },
+          audio: false
+        });
+        sourceVideo.srcObject = mediaStream;
+        await sourceVideo.play();
+        setRunning(true);
+        setStatus('Running', 'on');
+        captureAndDetect();
+        detectionTimer = window.setInterval(captureAndDetect, 900);
+      } catch (err) {
+        setStatus('Camera unavailable', 'err');
+      }
+    }
+
+    function stopDetection() {
+      if (detectionTimer) window.clearInterval(detectionTimer);
+      detectionTimer = null;
+      if (mediaStream) {
+        mediaStream.getTracks().forEach((track) => track.stop());
+      }
+      mediaStream = null;
+      sourceVideo.srcObject = null;
+      setRunning(false);
+      setStatus('Stopped', '');
+    }
+
+    async function captureAndDetect() {
+      if (requestInFlight || !mediaStream || !sourceVideo.videoWidth || !sourceVideo.videoHeight) return;
+
+      requestInFlight = true;
+      const maxWidth = 960;
+      const scale = Math.min(1, maxWidth / sourceVideo.videoWidth);
+      captureCanvas.width = Math.round(sourceVideo.videoWidth * scale);
+      captureCanvas.height = Math.round(sourceVideo.videoHeight * scale);
+      const ctx = captureCanvas.getContext('2d');
+      ctx.drawImage(sourceVideo, 0, 0, captureCanvas.width, captureCanvas.height);
+
+      try {
+        const response = await fetch(detectUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ image: captureCanvas.toDataURL('image/jpeg', 0.82) })
+        });
+        const data = await response.json();
+        if (!response.ok || !data.ok) throw new Error(data.message || 'Detection failed');
+
+        detectedFrame.src = data.image;
+        violationText.textContent = data.detected_classes.length ? data.detected_classes.join(', ') : 'None';
+        setStatus('Running', 'on');
+      } catch (err) {
+        setStatus('Detection unavailable', 'err');
+      } finally {
+        requestInFlight = false;
+      }
+    }
+
+    startBtn.addEventListener('click', startDetection);
+    stopBtn.addEventListener('click', stopDetection);
+    window.addEventListener('beforeunload', stopDetection);
+  </script>
+</body>
+</html>
